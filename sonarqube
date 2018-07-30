@@ -1,0 +1,154 @@
+SonarQube Installation
+#################
+Creator: Natraj Version 1.0
+about# SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. 
+With a Quality Gate in place, you can fix the leak and therefore improve code quality systematically.
+pre requisites:#
+any linux with 2 gigs ram.
+JDK installed, maria db installed
+
+High level steps:
+##################
+1. Install SonarQube
+2. Install Sonarscanner
+3. Install Maven.
+4. Download the code.
+5. test the code.
+
+
+I)
+$ cd /opt
+$ wget https://sonarsource.bintray.com/Distribution/sonarqube/sonarqube-7.2.zip or check https://www.sonarqube.org/downloads/
+$ unzip sonarqube-7.2.zip
+
+set environmental variables in bash profile:
+export SONARQUBE_HOME=/opt/sonarqube-7.2
+export PATH=${PATH}:${SONARQUBE_HOME}/bin
+
+
+II) db setup:
+++++++++++++Maria atabase installation:
+yum install -y mariadb
+sysctl enable mariadb service
+system start mariadb service
+mysql_secure_installation=============set password (self explanatory)
+++++++++++Creating MySQL Sonar Database
+
+III)
+$ mysql –u root –p                   (press enter, and provide the root password)
+mysql> CREATE DATABASE sonar CHARACTER SET utf8 COLLATE utf8_general_ci;
+mysql> CREATE USER 'sonar' IDENTIFIED BY 'sonar';
+mysql> GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar';
+mysql> GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
+mysql> FLUSH PRIVILEGES;
+
+
+IV) 
+
+Configure Database with SonarQube
+$ cd /opt/sonarqube-7.2/conf/
+$ vim sonar.properties   (Add the below lines)
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+sonar.jdbc.url=jdbc:mysql://web.localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
+
+
+V) Start the SonarQube server:
+start the sonarquebe
+
+$cd /opt/sonarqube-7.2/bin/linux-x86-64
+$ . ./sonar.sh
+
+start sonar after server reboot:
+ln -s /opt/sonarqube-7.2/bin/linux-x86-64/sonar.sh /etc/init.d/sonar.sh
+sudo chkconfig --add sonar.sh
+sudo chkconfig --levels 345 sonar.sh on
+
+
+
+
+==============Validation============
+check site is online
+http://localhost:9000﻿
+
+if you aware ip address
+ex. http://192.168.93.128:9000
+
+
+
+sonar scanner installation
+##########################
+
+Download latest sonar scanner at : link: https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/
+
+wget https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.2.0.1227-linux.zip = change link as per the latest software version.
+
+modify the file /opt/sonar-scanner-3.2.0.1227-linux/conf/sonar-scanner.properties = (path changes as per the software version)
+
+#----- Default SonarQube server
+sonar.host.url=http://localhost:9000 ============ modify incase if you have local ip address
+
+#----- Default source code encoding
+sonar.sourceEncoding=UTF-8
+
+path=$PATH:/opt/sonar-scanner-3.2.0.1227-linux/bin === (add entry to .bash_profile and reload)
+
+. ./.bash_profile
+
+
+3 Maven Installation:
+###################
+
+maven location:
+
+https://maven.apache.org/download.cgi
+
+wget http://www-us.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+
+
+export PATH=$PATH:/opt/apache-maven-3.5.4/bin; == add path to .bash_profile and reload
+
+
+yum install -y apache-maven
+mvn --version
+
+4 Get test code
+################
+ex. cd /root/test5 === (change the path according to your downloded path)
+ex. git clone https://sukanya_d@bitbucket.org/tadaay-dev/tadaay.git (change bucket as per the requirement)
+
+
+
+5. testing the code.
+###################
+
+create any testing project directory, or ignore already if you have. in my case I created under /opt/test
+
+sonar-project.properties
+---------------------
+
+# must be unique in a given SonarQube instance
+sonar.projectKey=sonar_test1
+# this is the name and version displayed in the SonarQube UI. Was mandatory prior to SonarQube 6.1.
+sonar.projectName=Sonar_test1
+sonar.projectVersion=1.0
+ 
+# Path is relative to the sonar-project.properties file. Replace "\" by "/" on Windows.
+# This property is optional if sonar.modules is set. 
+sonar.sources=src
+sonar.language=java
+ 
+# Encoding of the source code. Default is default system encoding
+sonar.sourceEncoding=UTF-8
+sonar.projectBaseDir=/root/test5/tadaay ======================================== give the path of the developed code
+sonar.java.source=1.8
+tar -xvf 
+
+
+execution:#########     
+
+sonar-scanner -Dsonar.projectKey=sonar_test1 -Dsonar.sources=/opt/test/.
+
+
+
+-o0o-
