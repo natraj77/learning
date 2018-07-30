@@ -1,0 +1,58 @@
+Nexus:
+######
+######################################################################################################
+#Natraj version 1.0
+#An repository manager allows to store and retrieve build artifacts. 
+#The most popular examples for repository manager are Maven Central Repository and jcenter at Bintray,
+#
+#A Nexus installation brings you such a repository for your company. 
+#So you can host your own repositories, but also use Nexus as a proxy for public repositories.
+#Os: redhat linux, 3GB RAM.
+######################################################################################################
+Current environment:
+path: /home/app
+user: nexus
+(I exeucted commands as root for all activities, switched to nexus user from nexus startup onwards)
+
+1. Get Nexus installatin file at:
+cd /home/app
+wget https://www.sonatype.com/download-nexus-repository-trial
+tar -xvzf nexus-2.11.4-01-bundle.tar.gz
+
+#2
+chown -R nexus:nexus /home/app/nexus-3.13.0-01
+
+#3
+modify /home/app/nexus-3.13.0-01/bin/nexus.rc
+[root@mist5 app]# cat /home/app/nexus-3.13.0-01/bin/nexus.rc
+run_as_user="nexus" ============= add the user name
+
+#4
+cd /home/app/nexus-3.13.0-01/bin/
+./nexus start
+
+#verification:=====>  ./nexus status
+
+###Log file path:
+/home/app/sonatype-work/nexus3/log (check log file if not started)
+
+###Nexus path:
+http://localhost:8081/
+ex: http://192.168.93.128:8081/ = if local ip present.
+
+###Credentials:
+username: admin
+password: admin123
+
+###nexus commands:
+./nexus start
+./nexus stop
+./nexus restart
+
+###Troubleshooting steps:
+Q. Why nexus is not started:
+1. Check permissions available on /home/app/sonatype-work/nexus3/log
+2. make sure that nexus software installed not on root folder.
+3. if still issue, check parameters values /home/app/nexus-3.13.0-01/bin/nexus.vmoptions
+
+-o0o-
