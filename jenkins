@@ -1,0 +1,94 @@
+Jenkins:
+######
+######################################################################################################
+#Natraj version1.0
+######################################################################################################
+
+1#Install Java:
+sudo yum install java-1.8.0-openjdk
+
+2#install apache-tomcat:
+wget http://www-eu.apache.org/dist/tomcat/tomcat-9/v9.0.10/bin/apache-tomcat-9.0.10.tar.gz
+
+3#
+vim /root/softwares/apache-tomcat-9.0.10/conf/tomcat-users.xml
+
+File has to be modified with entries: (compare with below entries and edit accordingly)
+#######################################################################################
+<tomcat-users xmlns="http://tomcat.apache.org/xml"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+              version="1.0">
+
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<role rolename="manager-jmx"/>
+<role rolename="manager-jmx"/>
+<user username="admin" password="redhat" roles="manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script"/>
+</tomcat-users>
+
+
+
+4# startup tomcat server:
+cd /root/softwares/apache-tomcat-9.0.10/bin
+
+./startup
+
+
+
+
+
+5# Jenkins WAR file installation
+cd /root/software/
+wget http://updates.jenkins-ci.org/download/war/2.134/jenkins.war
+
+connect http://192.168.93.128:8080
+manager app
+give credentials (check tomcat-users.xml)
+
+
+Context Path: /jenkins
+WAR or Directory path: /root/softwares/jenkins.war
+
+once deployed, click /jenkins --- directs to jenkins credentials page.
+you need to enter password (clue will be given on the page)
+
+[root@mist5 ~]# cat /root/.jenkins/secrets/initialAdminPassword
+22a939d8237747ce8943a17ed4b3ec3d
+[root@mist5 ~]#
+
+once you given password, page redirects to http://192.168.93.128:8080/jenkins/
+
+on the jenkins page, it asks you to install suggested plug ins.
+
+
+once it installs plugins, it redirect page to create users
+(given inputs in my page)
+admin
+redhat
+redhat
+natraj
+nataraj.chindam@gmail.com
+
+http://192.168.93.128:8080/jenkins/
+
+6# install relavent plugins to jenkins
+
+troubleshooting:##########
+1#check the logs incase of startup failure: /root/softwares/apache-tomcat-9.0.10/logs
+2#connect apache tomcat: 
+http://localhost:8080
+http://192.168.93.128:8080
+
+if you are accessing outside the vm machine, modify the context file. and add your machin ip address
+
+$CATALINA_HOME/webapps/manager/META-INF and $CATALINA_HOME/webapps/host-manager/META-INF
+-->
+<Context antiResourceLocking="false" privileged="true" >
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|192.168.93.128|192.168.93.1" />
+  <Manager sessionAttributeValueClassNameFilter="java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap"/>
+</Context>
+(added ip address 192.168.93.1 as it is pointing to my local machine private ip.)
+
+-o0o-
